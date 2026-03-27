@@ -36,7 +36,7 @@ func (as *AuthService) Login(ctx context.Context, email, password string) (*mode
 			return err
 		}
 
-		err = auth.ComparePassword(password, user.Password)
+		err = auth.ComparePassword(password, user.PasswordHash)
 		if err != nil {
 			return err
 		}

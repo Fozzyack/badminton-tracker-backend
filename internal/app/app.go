@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/Fozzyack/badminton-tracker-backend/database"
+	"github.com/Fozzyack/badminton-tracker-backend/internal/api"
 	"github.com/Fozzyack/badminton-tracker-backend/internal/env"
 	"github.com/Fozzyack/badminton-tracker-backend/internal/services"
 	"github.com/Fozzyack/badminton-tracker-backend/internal/store"
@@ -14,6 +15,7 @@ import (
 type Application struct {
 	Logger      zerolog.Logger
 	AuthService *services.AuthService
+	AuthHandler *api.AuthHandler
 }
 
 func NewApplication() (*Application, error) {
@@ -33,15 +35,21 @@ func NewApplication() (*Application, error) {
 		return nil, err
 	}
 
+	// stores
 	userStore := store.NewUserStore(pgDB)
 	sessionStore := store.NewSessionStore(pgDB)
 
+	// services
 	txManager := services.NewSQLTxManager(pgDB)
 	authService := services.NewAuthService(txManager, userStore, sessionStore)
+
+	// handlers
+	authHandler := api.NewAuthHandler(logger, authService)
 
 	app := &Application{
 		Logger:      logger,
 		AuthService: authService,
+		AuthHandler: authHandler,
 	}
 
 	return app, nil

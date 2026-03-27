@@ -1,6 +1,9 @@
 package routes
 
 import (
+	"net/http"
+
+	"github.com/Fozzyack/badminton-tracker-backend/internal/api"
 	"github.com/Fozzyack/badminton-tracker-backend/internal/app"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -24,5 +27,12 @@ func SetupRouter(app *app.Application) *chi.Mux {
 		MaxAge:           300,
 	}))
 
+	r.Get("/health", HealthCheck)
+	r.Post("/login", app.AuthHandler.Login)
+
 	return r
+}
+
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	api.SendJSON(w, map[string]string{"status": "ok"})
 }
